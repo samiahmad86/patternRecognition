@@ -1,4 +1,4 @@
-
+import pylab
 import numpy as np
 import scipy as sp
 import scipy.stats as stats
@@ -106,3 +106,18 @@ if __name__ == "__main__":
     plt.plot(range, pdf, color="yellow", linewidth=1, linestyle="-", label="normal")
     plt.legend(loc='upper right')
     plt.show()
+
+
+    # Consider the Lp norm for p = 1/2 and plot the corresponding  unit circle
+    def plotUnitCircle(p):
+        """ plot some 2D vectors with p-norm < 1 """
+        for i in xrange(5000):
+            x = np.array([np.random.rand()*2-1,np.random.rand()*2-1])
+            if np.linalg.norm(x,p) < 1:
+                pylab.plot(x[0],x[1],'bo')
+        pylab.axis([-1.5, 1.5, -1.5, 1.5])
+        pylab.show()
+
+
+    # plotUnitCircle(1)
+    plotUnitCircle(0.5)
