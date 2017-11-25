@@ -5,6 +5,8 @@ import scipy as sp
 import math
 from scipy.optimize import curve_fit
 import matplotlib.pyplot as mp
+import timeit
+import os
 
 def fit(x, b, D): # this is our 'straight line' y=f(x)
     return D*x + b
@@ -28,7 +30,8 @@ class Deque:
 
 
 class FractalDimention:
-        def __init__(self,f):
+        def __init__(self,f,imgName):
+            self.imgName = imgName
             self.OriginalImage = f
             self.BinaryImageArray = self.foreground2BinImg(f)
             self.CumSum = self.DPStoreSum()
@@ -111,45 +114,74 @@ class FractalDimention:
 
 
         #Plot the points
-        def PlotPoints(self):
+        def PlotPoints(self,LogDir,starttime,endtime):
+            fileio = open(LogDir + "LogFile.txt", "a+")
             Lx = []
             Ly = []
             for key in self.BoxLevel:
-                #print(key," = ", self.BoxLevel[key])
                 Lx.append( math.log(2**key,10))
                 Ly.append( math.log(self.BoxLevel[key],10))
-            mp.plot(Lx,Ly,'ro')
-            mp.plot(Lx,Ly,'g')
-            mp.xlabel(" log 1/si ---->")
-            mp.ylabel(" log ni ---->")
-            #mp.show()
+
+            #Basic Plotting of the scattered points obtained from the calculations and the curve through them
+            mp.plot(Lx,Ly,'ro',label='Points -> ( log(ni) , log(1/si) )')
+            mp.plot(Lx,Ly,'y',label=' Curve through the points')
 
             #Use curve_fit to find the estimates. It uses Least Square internally
             y0 = np.array(Ly)
             x0 = np.array(Lx)
             initial = [Lx[0],Ly[0]]
+
+            #parg will contain the set of equation parameters, including D which we want to finc from the calculation
             parg, popt = curve_fit(fit,x0,y0,initial)
-            print("\nParameters = ",parg)
-            print("\nCovariance Matrix = ",popt)
-            print("\n Fractal Dimention of Image (D)= ",parg[1])
+
+            #Write to the log file
+            fileio.write("\n\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+            fileio.write(str("\n Calculations for Image = "+self.imgName+".png"))
+            fileio.write(str("\nParameters = ")+str(parg))
+            fileio.write(str("\nCovariance Matrix = ")+str(popt))
+            fileio.write(str("\n Total Time elapsed :: ")+str(endtime-starttime)+" units")
+            fileio.write(str("\n Fractal Dimention of Image (D)= "+str(parg[1])))
+            fileio.write("\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+
             #Plot the best fit line
-            mp.plot(x0, fit(x0, *parg), 'b-')
+            mp.plot(x0, fit(x0, *parg), 'b-', label = 'Best Fit Line')
+
+            #Add labels to the image
+            mp.grid(True)
+            mp.legend()
+            mp.title(self.imgName+'.png')
+            mp.xlabel(str(" log 1/si ----> ( Log Base 10 ) Fractal Dimention of Image = ")+str(parg[1]))
+            mp.ylabel(" log ni ----> ( Log Base 10 )")
+            mp.savefig(LogDir+"Plot-"+imgName+".pdf",facecolor='w', edgecolor='w',
+                        papertype=None, format='pdf', transparent=False,
+                        bbox_inches='tight', pad_inches=0.1)
+
             mp.show()
+            fileio.close()
+
+
+#Wrapper Function to implement Box Counting and generate the relevant files
+def CalculateFractalDimention(CurrDir,imgName,LogDir):
+    f = msc.imread(CurrDir+"//"+imgName+'.png', flatten=True).astype(np.float)
+
+    starttime = timeit.default_timer()
+    FD = FractalDimention(f,imgName)
+    FD.BoxCount(f.shape[0]) # It is assumed to be a square image, so shape[0] = shape[1]
+    endtime = timeit.default_timer()
+
+    msc.imsave(LogDir + imgName + '-binary.png', FD.BinaryImageArray, format=None)
+    FD.PlotPoints(LogDir,starttime,endtime)
 
 
 
-
-
-imgName = 'tree'
-f = msc.imread(imgName+'.png', flatten=True).astype(np.float)
-#msc.imsave('bitmap.png',g,format=None)
-
-FD = FractalDimention(f)
-FD.BoxCount(f.shape[0]) # It is assumed to be a square image, so shape[0] = shape[1]
-FD.PlotPoints()
-
-
-
+ListofImages=['tree','lightning-3']
+LogDir = os.path.dirname(os.path.realpath(__file__)) +"//Logs_FractalDimention//"
+try:
+  os.stat(LogDir)
+except:
+  os.mkdir(LogDir)
+for imgName in ListofImages:
+    CalculateFractalDimention(os.getcwd(),imgName,LogDir)
 
 
 
