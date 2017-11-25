@@ -129,11 +129,11 @@ if __name__ == "__main__":
         x = np.linspace(-1.0, 1.0, 1000)
         y = np.linspace(-1.0, 1.0, 1000)
         X, Y = np.meshgrid(x, y)
-        F = ((abs(X)**p+abs(Y)**p)**(1.0/p)) - 1**p
+        F = (((abs(X)**p+abs(Y)**p)**(1.0/p)) - 1)
         plt.contour(X, Y, F, [0])
         plt.show()
 
 
     # plotUnitCircle(1)
+
     plotUnitCircle(0.5)
-    # plotUnitCircle(2)
