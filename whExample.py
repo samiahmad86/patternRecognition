@@ -1,8 +1,11 @@
 import pylab
+import math
 import numpy as np
 import scipy as sp
 import scipy.stats as stats
 import matplotlib.pyplot as plt
+from mpl_toolkits.axes_grid.axislines import SubplotZero
+from numpy import inf
 
 
 
@@ -102,22 +105,35 @@ if __name__ == "__main__":
 
     range = np.arange(140,210,0.005)
     pdf= stats.norm.pdf(range, hMean, hStd)
-    plt.plot(height, np.zeros_like(height) + 0, 'o', label="data")
-    plt.plot(range, pdf, color="yellow", linewidth=1, linestyle="-", label="normal")
-    plt.legend(loc='upper right')
-    plt.show()
+   # plt.plot(height, np.zeros_like(height) + 0, 'o', label="data")
+    # plt.plot(range, pdf, color="yellow", linewidth=1, linestyle="-", label="normal")
+  #  plt.legend(loc='upper right')
+  #  plt.show()
 
 
     # Consider the Lp norm for p = 1/2 and plot the corresponding  unit circle
     def plotUnitCircle(p):
         """ plot some 2D vectors with p-norm < 1 """
-        for i in xrange(5000):
-            x = np.array([np.random.rand()*2-1,np.random.rand()*2-1])
-            if np.linalg.norm(x,p) < 1:
-                pylab.plot(x[0],x[1],'bo')
-        pylab.axis([-1.5, 1.5, -1.5, 1.5])
-        pylab.show()
+        fig = plt.figure(1)
+        ax = SubplotZero(fig, 111)
+        fig.add_subplot(ax)
+
+        for direction in ["xzero", "yzero"]:
+            ax.axis[direction].set_axisline_style("-|>")
+            ax.axis[direction].set_visible(True)
+
+        for direction in ["left", "right", "bottom", "top"]:
+            ax.axis[direction].set_visible(False)
+
+
+        x = np.linspace(-1.0, 1.0, 1000)
+        y = np.linspace(-1.0, 1.0, 1000)
+        X, Y = np.meshgrid(x, y)
+        F = ((abs(X)**p+abs(Y)**p)**(1.0/p)) - 1**p
+        plt.contour(X, Y, F, [0])
+        plt.show()
 
 
     # plotUnitCircle(1)
     plotUnitCircle(0.5)
+    # plotUnitCircle(2)

@@ -140,7 +140,7 @@ class FractalDimention:
 
 
 
-imgName = 'tree'
+imgName = 'tree-2'
 f = msc.imread(imgName+'.png', flatten=True).astype(np.float)
 #msc.imsave('bitmap.png',g,format=None)
 
