@@ -1,7 +1,6 @@
 import numpy as np
 import scipy.optimize as scp
 import math as mth
-import numdifftools as nd
 from numpy.linalg import inv
 import matplotlib.pyplot as mp
 import scipy as sh
@@ -39,7 +38,7 @@ def sum2(data,a,k):
 def sum3(data,a,k):
     sum = 0.0
     for i in data:
-        sum += ((i/a)**k) * mth.log(i/a) * mth.log(i/a)
+        sum += ((i/a)**k) * mth.log(i/a,2) * mth.log(i/a,2)
     return sum
 
 def sum4(data):
@@ -68,7 +67,7 @@ def SecondOrderDerivativeLA( x,k,a ):
 
 def SecondOrderLAK( x,k,a):
     N = len(x)
-    return (1/a)*sum2(x,a,k) + (k/a)*sum1(x,a,k)  - (N/a)
+    return (1.0/a)*sum2(x,a,k) + (k/a)*sum1(x,a,k)  - (N/a)
 
 
 class FitWeibull:
@@ -83,8 +82,6 @@ class FitWeibull:
         #self.N = len(self.h)
         #x = np.arange(1, 1 + len(self.h), 1)
         #self.x = x.tolist()
-
-
 
         import collections as c
         dict = c.Counter(hs)
@@ -137,7 +134,7 @@ class FitWeibull:
            #hessianmatrix = nd.hessian(LikelihoodFunc)[k,a,self.h]
 
            alpha = np.array([[k,a]]).transpose()
-           product = np.dot(inv(hessianmatrix),gradient)
+           product = np.multiply(inv(hessianmatrix),gradient)
            alpha = np.add(alpha,product)
            k = alpha[0][0]
            a = alpha[1][0]
@@ -151,11 +148,11 @@ class FitWeibull:
 
 
 p = FitWeibull('myspace.csv')
-a,k = p.iterateNewtonMethod(p.x)
+a,k = p.iterateNewtonMethod(p.d)
 print("\n By out function = ",a,k)
 
 
-Weibull_parameters = sh.exponweib.fit(p.x, floc=0, f0=1)
+Weibull_parameters = sh.exponweib.fit(p.d, floc=0, f0=1)
 Beta, Alpha = Weibull_parameters[1], Weibull_parameters[3]
 print("\n By exponweib = ",Weibull_parameters)
 
@@ -165,10 +162,10 @@ for i in range(0,len(p.d)):
 
 p0 = []
 for i in (x0):
-    p0.append(weibull(i,Alpha,Beta))
+    p0.append(weibull(i,215.4,2.5))
 
-#mp.plot(x0,p.h,'b-')
-mp.plot(x0, p0,'r-')
+mp.plot(x0,p.h)
+#mp.plot(x0, p0,'r-')
 mp.show()
 
 

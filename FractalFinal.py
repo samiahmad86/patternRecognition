@@ -7,6 +7,7 @@ from scipy.optimize import curve_fit
 import matplotlib.pyplot as mp
 import timeit
 import os
+import matplotlib.patches as patches
 
 def fit(x, b, D): # this is our 'straight line' y=f(x)
     return D*x + b

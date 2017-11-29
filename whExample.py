@@ -130,7 +130,7 @@ if __name__ == "__main__":
         y = np.linspace(-1.0, 1.0, 1000)
         X, Y = np.meshgrid(x, y)
         F = (((abs(X)**p+abs(Y)**p)**(1.0/p)) - 1)
-        plt.contour(X, Y, F, [0])
+        ax.contour(X, Y, F, [0])
         plt.show()
 
 

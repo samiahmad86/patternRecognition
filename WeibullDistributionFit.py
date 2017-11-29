@@ -1,7 +1,6 @@
 import numpy as np
 import scipy.optimize as scp
 import math as mth
-import numdifftools as nd
 from numpy.linalg import inv
 import matplotlib.pyplot as mp
 import scipy as sh
@@ -60,8 +59,20 @@ class FitWeibull:
             for j in range(frequency[i]):
                 if valueIndex[i] > 0:
                     data.append(valueIndex[i])
-
-        self.h = data
+        uniqueAr = np.unique(frequency)
+        c = 0
+        count = []
+        for i in range(len(uniqueAr)):
+            for j in range(len(frequency)):
+                if uniqueAr[i] == frequency[j]:
+                   c += 1
+            count.append(c)
+            c = 0
+        final = []
+        for i in range(len(uniqueAr)):
+            final.append(uniqueAr[i] * count[i])
+        final.pop(0)
+        self.h = final
         self.original = RawData
 
     def iterateNewtonMethod(self, s):
@@ -113,15 +124,15 @@ class FitWeibull:
 
         # Creating Weibull data by calculated value of k and alpha
         x = np.arange(1.0, len(self.original))
+        x = self.original
         y =[]
-        for i in x:
+        for i in X:
             y.append(weibull(i, alpha, k))
 
         scaleFactor =  100.0 / max(y)
-
         # Ploting Weibull fit
 
-        P2 = np.array([x, np.array(y) * scaleFactor])
+        P2 = np.array([X, np.array(y) * scaleFactor])
         plotData2D(P1, P2, 'WeibullDistributionFit.pdf')
         plotData2D(P1, P2)
 
